@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["clientExtensions", "postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  extensions      = [pgcrypto]
+}
+
+model astronomy_expert {
+  id                  String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id             String       @db.Uuid
+  organization_id     String       @db.Uuid
+  specialization      String?      @db.VarChar(255)
+  years_of_experience Int?
+  date_joined         DateTime     @db.Timestamp(6)
+  created_at          DateTime     @default(now()) @db.Timestamp(6)
+  updated_at          DateTime     @default(now()) @db.Timestamp(6)
+  organization        organization @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user                user         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model data_analyst {
+  id                  String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id             String       @db.Uuid
+  organization_id     String       @db.Uuid
+  specialization      String?      @db.VarChar(255)
+  years_of_experience Int?
+  date_joined         DateTime     @db.Timestamp(6)
+  created_at          DateTime     @default(now()) @db.Timestamp(6)
+  updated_at          DateTime     @default(now()) @db.Timestamp(6)
+  organization        organization @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user                user         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model data_model {
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String       @db.VarChar(255)
+  user_id         String       @db.Uuid
+  organization_id String       @db.Uuid
+  created_at      DateTime     @default(now()) @db.Timestamp(6)
+  updated_at      DateTime     @default(now()) @db.Timestamp(6)
+  organization    organization @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user            user         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model moon_movement {
+  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  date            DateTime     @db.Timestamp(6)
+  phase           String       @db.VarChar(255)
+  transit         String       @db.VarChar(255)
+  user_id         String       @db.Uuid
+  organization_id String       @db.Uuid
+  created_at      DateTime     @default(now()) @db.Timestamp(6)
+  updated_at      DateTime     @default(now()) @db.Timestamp(6)
+  organization    organization @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user            user         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model organization {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  description      String?            @db.VarChar(255)
+  name             String             @db.VarChar(255)
+  created_at       DateTime           @default(now()) @db.Timestamp(6)
+  updated_at       DateTime           @default(now()) @db.Timestamp(6)
+  user_id          String             @db.Uuid
+  tenant_id        String             @db.VarChar(255)
+  astronomy_expert astronomy_expert[]
+  data_analyst     data_analyst[]
+  data_model       data_model[]
+  moon_movement    moon_movement[]
+  user             user               @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model user {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email            String             @unique @db.VarChar(255)
+  firstName        String?            @db.VarChar(255)
+  lastName         String?            @db.VarChar(255)
+  roq_user_id      String             @db.VarChar(255)
+  tenant_id        String             @db.VarChar(255)
+  created_at       DateTime           @default(now()) @db.Timestamp(6)
+  updated_at       DateTime           @default(now()) @db.Timestamp(6)
+  astronomy_expert astronomy_expert[]
+  data_analyst     data_analyst[]
+  data_model       data_model[]
+  moon_movement    moon_movement[]
+  organization     organization[]
+}
